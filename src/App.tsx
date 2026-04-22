@@ -73,12 +73,10 @@ function App() {
   }
 
   const handleOnPushNotification = () => {
-    const unsub = DashX.onPushNotificationReceived((payload) => {
+    DashX.onPushNotificationReceived((payload) => {
       log(`Push received: ${payload.title} - ${payload.body}`, 'info')
     })
     log('Listening for foreground push notifications (refresh to stop)', 'success')
-    // Store for potential cleanup — for demo purposes we just let it live
-    ;(window as any).__dashxPushUnsub = unsub
   }
 
   const handleTrack = () => {
