@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import DashX from '@dashx/browser'
 import { messaging } from './firebase'
 import './App.css'
@@ -19,6 +19,18 @@ function App() {
     const time = new Date().toLocaleTimeString()
     setLogs((prev) => [{ time, message, type }, ...prev])
   }, [])
+
+  // Register a foreground push listener at mount. `DashX.attachForegroundMessaging`
+  // (wired in main.tsx) makes the Firebase `onMessage` pipe survive page
+  // reloads; this callback is what shows up in the Log panel when a push
+  // arrives while the tab is focused. The system banner also renders in
+  // parallel via 0.6.2's default behavior.
+  useEffect(() => {
+    const unsubscribe = DashX.onPushNotificationReceived((payload) => {
+      log(`Push received: ${payload.title} — ${payload.body}`, 'info')
+    })
+    return unsubscribe
+  }, [ log ])
 
   const handleIdentify = async () => {
     try {
@@ -70,13 +82,6 @@ function App() {
     } catch (err) {
       log(`Unsubscribe failed: ${err}`, 'error')
     }
-  }
-
-  const handleOnPushNotification = () => {
-    DashX.onPushNotificationReceived((payload) => {
-      log(`Push received: ${payload.title} - ${payload.body}`, 'info')
-    })
-    log('Listening for foreground push notifications (refresh to stop)', 'success')
   }
 
   const handleTrack = () => {
@@ -131,9 +136,6 @@ function App() {
             </button>
             <button onClick={handleUnsubscribe} disabled={!subscribed}>
               Unsubscribe
-            </button>
-            <button onClick={handleOnPushNotification}>
-              On Push Received
             </button>
           </div>
         </section>
