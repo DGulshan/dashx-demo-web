@@ -65,13 +65,12 @@ npm run dev
 
 ## Service Worker
 
-The Firebase service worker (`public/firebase-messaging-sw.js`) is auto-generated from your `.env` variables when the dev server starts or when you build. You don't need to edit it manually.
+Both `public/firebase-messaging-sw.js` and `public/dashx-sw-helper.umd.js` are regenerated automatically on every `vite dev` / `vite build` by the `generate-firebase-sw` plugin in `vite.config.ts`:
 
-The DashX service worker helper (`public/dashx-sw-helper.umd.js`) is copied from the `@dashx/browser` package build output. To update it after rebuilding the SDK:
+- The top-level SW file is rendered from your `.env` variables and tagged with a `/* @dashx/browser v<installed-version> */` comment so its bytes change whenever the SDK is upgraded — that's what triggers the browser to register the new SW.
+- `dashx-sw-helper.umd.js` is copied from `node_modules/@dashx/browser/dist/sw-helper.umd.js` so the helper bytes always match the installed SDK.
 
-```sh
-cp ../dashx-browser/dist/sw-helper.umd.js public/dashx-sw-helper.umd.js
-```
+Don't edit either file by hand — your changes will be overwritten on the next dev/build. To pick up an SDK update, run `npm install @dashx/browser@<new>` followed by `npm run dev` or `npm run build`.
 
 ## Build
 
